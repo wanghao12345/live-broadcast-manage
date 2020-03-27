@@ -2,14 +2,41 @@
   <div class="video-wrapper">
     <div v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
     <div id='local_stream' class="local-stream"></div>
+    <div class="btn-wrapper">
+      <div class="btn-list-wrapper">
+        <div class="btn-item">
+          <img :src="btnIcon.micOn" alt="">
+        </div>
+        <div class="btn-item">
+          <img :src="btnIcon.cameraOn" alt="">
+        </div>
+        <div class="btn-item" @click="createScreenShare">
+          <img :src="btnIcon.shareOn" alt="">
+        </div>
+        <div class="btn-item" @click="createClient">
+          <img :src="btnIcon.playerOn" alt="">
+        </div>
+      </div>
+      <p class="tip">技术支持：知服宝</p>
+    </div>
   </div>
 </template>
 
 <script>
 // 导入sdk
 import TRTC from 'trtc-js-sdk'
+import micOn from '../../../assets/img/big-mic-on.png'
+import micOff from '../../../assets/img/big-mic-off.png'
 
-// import  LibGenerateTestUserSig from '../../../utils/lib-generate-test-usersig.min.js'
+import cameraOn from '../../../assets/img/big-camera-on.png'
+import cameraOff from '../../../assets/img/big-camera-off.png'
+
+import shareOn from '../../../assets/img/big-share-on.png'
+import shareOff from '../../../assets/img/big-share-off.png'
+
+import playerOn from '../../../assets/img/big-player-on.png'
+import playerOff from '../../../assets/img/big-player-off.png'
+
 var LibGenerateTestUserSig = require('../../../utils/lib-generate-test-usersig.min.js')
 
 export default {
@@ -20,20 +47,32 @@ export default {
       roomId: 123, // 房间号--加入相同房间才能聊
       client: '', // 客户端服务
       remoteStream: '', // 远方播放流
-      localStream: '' // 本地流
+      localStream: '', // 本地流
+      btnIcon: {
+        micOn,
+        micOff,
+        cameraOn,
+        cameraOff,
+        shareOn,
+        shareOff,
+        playerOn,
+        playerOff
+      }
     }
   },
   mounted () {
     // 测试用，所以直接创建了，其他需求可自行更改
-    this.createClient(this.userId)
+    // this.createClient()
   },
   methods: {
     // 创建链接
-    createClient (userId) {
+    createClient () {
       // 获取签名
+      const userId = this.userId
       const config = this.genTestUserSig(userId)
       const sdkAppId = config.sdkAppId
       const userSig = config.userSig
+
       this.client = TRTC.createClient({
         mode: 'videoCall',
         sdkAppId,
@@ -77,6 +116,25 @@ export default {
           // 创建好后才能发布
           this.publishStream(localStream, this.client)
         })
+    },
+
+    // 发布屏幕分享
+    createScreenShare () {
+      // 创建屏幕分享流
+      const localStream = TRTC.createStream({ audio: false, screen: true });
+      // 监听屏幕分享停止事件
+      localStream.on('screen-sharing-stopped', event => {
+        console.log('screen sharing was stopped')
+      })
+
+      // 初始化屏幕分享流
+      localStream.initialize().then(() => {
+        console.log('screencast stream init success')
+        // 发布屏幕分享流
+        this.client.publish(localStream).then(() => {
+          console.log('screen casting')
+        })
+      })
     },
 
     // 发布本地音视频流
@@ -135,6 +193,7 @@ export default {
           // 错误不可恢复，需要刷新页面。
         })
     },
+
     // 获取用户签名--前端测试用
     genTestUserSig (userID) {
       /**
@@ -185,13 +244,50 @@ export default {
   .video-wrapper{
     width: 100%;
     height: 100%;
+    position: relative;
     .distant-stream{
       width: 100%;
       height: 50%;
+      display: none;
     }
     .local-stream{
       width: 100%;
-      height: 50%;
+      height: 100%;
+      /*display: none;*/
+    }
+    .btn-wrapper{
+      width: 100%;
+      height: 100px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      .btn-list-wrapper{
+        width: 100%;
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        .btn-item{
+          width: 60px;
+          height: 60px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 100px;
+          background-color: white;
+          box-shadow: 0px 0px 5px #dad6d6;
+          margin: 0 20px;
+          cursor: pointer;
+          img{
+            width: 30px;
+            height: 30px;
+          }
+        }
+      }
+      p.tip{
+        text-align: center;
+      }
     }
   }
 </style>
