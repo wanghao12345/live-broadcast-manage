@@ -1,6 +1,6 @@
 <template>
   <div class="room-wrapper">
-    <div class="room-top-wrapper">【刘银秀】视频直播间</div>
+    <div class="room-top-wrapper">【测试】视频直播间</div>
     <div class="room-bottom-wrapper">
       <div class="room-video-wrapper">
         <RoomVideo />
@@ -30,6 +30,7 @@ export default {
     height: 100%;
     background-color: #f1f2f4;
     overflow: auto;
+    min-width: 1200px;
     .room-top-wrapper{
       width: 100%;
       height: 50px;

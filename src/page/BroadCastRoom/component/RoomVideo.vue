@@ -5,19 +5,23 @@
     <div class="btn-wrapper">
       <div class="btn-list-wrapper">
         <div class="btn-item">
-          <img :src="btnIcon.micOn" alt="">
+          <img v-if="micStatus" :src="btnIcon.micOn" alt="">
+          <img v-else :src="btnIcon.micOff" alt="">
         </div>
         <div class="btn-item">
-          <img :src="btnIcon.cameraOn" alt="">
+          <img v-if="cameraStatus" :src="btnIcon.cameraOn" alt="">
+          <img v-else :src="btnIcon.cameraOff" alt="">
         </div>
-        <div class="btn-item" @click="createScreenShare">
-          <img :src="btnIcon.shareOn" alt="">
+        <div class="btn-item">
+          <img v-if="shareStatus" :src="btnIcon.shareOn"  @click="closeScreenShare" alt="">
+          <img v-else :src="btnIcon.shareOff" @click="createScreenShare" alt="">
         </div>
-        <div class="btn-item" @click="createClient">
-          <img :src="btnIcon.playerOn" alt="">
+        <div class="btn-item">
+          <img v-if="playerStatus" :src="btnIcon.playerOn" @click="leaveRoom" alt="">
+          <img v-else :src="btnIcon.playerOff" @click="createClient" alt="">
         </div>
       </div>
-      <p class="tip">技术支持：知服宝</p>
+      <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
   </div>
 </template>
@@ -48,6 +52,7 @@ export default {
       client: '', // 客户端服务
       remoteStream: '', // 远方播放流
       localStream: '', // 本地流
+      screenStream: '', // 分享流
       btnIcon: {
         micOn,
         micOff,
@@ -57,16 +62,23 @@ export default {
         shareOff,
         playerOn,
         playerOff
-      }
+      },
+      micStatus: true,
+      cameraStatus: true,
+      shareStatus: false,
+      playerStatus: false
     }
   },
   mounted () {
     // 测试用，所以直接创建了，其他需求可自行更改
-    // this.createClient()
+    this.createClient()
   },
   methods: {
     // 创建链接
     createClient () {
+      if (this.screeStream) {
+        this.closeScreenShare()
+      }
       // 获取签名
       const userId = this.userId
       const config = this.genTestUserSig(userId)
@@ -82,11 +94,12 @@ export default {
       // 注册远程监听，要放在加入房间前--这里用了发布订阅模式
       this.subscribeStream(this.client)
       // 初始化后才能加入房间
-      this.joinRoom(this.client, this.roomId)
+      this.joinRoom()
     },
     // 加入房间
-    joinRoom (client, roomId) {
-      client.join({roomId})
+    joinRoom () {
+      this.playerStatus = true
+      this.client.join({roomId: this.roomId})
         .catch(error => {
           console.error('进房失败 ' + error)
         })
@@ -120,21 +133,40 @@ export default {
 
     // 发布屏幕分享
     createScreenShare () {
+      // this.leaveRoom()
+      this.localStream.close()
+      this.shareStatus = true
+      // 取消发布
+      this.client.unpublish(this.localStream).then(() => {
+        // 取消发布本地流成功
+        console.log('取消发布本地流成功')
+      })
       // 创建屏幕分享流
-      const localStream = TRTC.createStream({ audio: false, screen: true });
+      this.screeStream = TRTC.createStream({ audio: false, screen: true })
       // 监听屏幕分享停止事件
-      localStream.on('screen-sharing-stopped', event => {
+      this.screeStream.on('screen-sharing-stopped', event => {
         console.log('screen sharing was stopped')
       })
 
       // 初始化屏幕分享流
-      localStream.initialize().then(() => {
+      this.screeStream.initialize().then(() => {
         console.log('screencast stream init success')
         // 发布屏幕分享流
-        this.client.publish(localStream).then(() => {
+        this.screeStream.play('local_stream')
+        this.publishStream(this.screeStream, this.client)
+
+        this.client.publish(this.screeStream).then(() => {
           console.log('screen casting')
+        }).catch((e) => {
+          console.log('屏幕分享失败:', e)
         })
+
       })
+    },
+
+    closeScreenShare () {
+      this.screeStream.close()
+      this.shareStatus = false
     },
 
     // 发布本地音视频流
@@ -175,8 +207,9 @@ export default {
     },
 
     // 退出音视频
-    leaveRoom (client) {
-      client
+    leaveRoom () {
+      this.playerStatus = false
+      this.client
         .leave()
         .then(() => {
           console.log('退房成功')
@@ -247,13 +280,13 @@ export default {
     position: relative;
     .distant-stream{
       width: 100%;
-      height: 50%;
-      display: none;
+      height: 100%;
     }
     .local-stream{
       width: 100%;
       height: 100%;
-      /*display: none;*/
+      display: flex;
+      justify-content: space-between;
     }
     .btn-wrapper{
       width: 100%;
