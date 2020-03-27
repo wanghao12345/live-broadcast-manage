@@ -133,7 +133,10 @@ export default {
 
     // 发布屏幕分享
     createScreenShare () {
-      // this.leaveRoom()
+      if (!this.client) {
+        alert('请先启动')
+        return
+      }
       this.localStream.close()
       this.shareStatus = true
       // 取消发布
@@ -142,7 +145,7 @@ export default {
         console.log('取消发布本地流成功')
       })
       // 创建屏幕分享流
-      this.screeStream = TRTC.createStream({ audio: false, screen: true })
+      this.screeStream = TRTC.createStream({ audio: true, screen: true })
       // 监听屏幕分享停止事件
       this.screeStream.on('screen-sharing-stopped', event => {
         console.log('screen sharing was stopped')
@@ -165,7 +168,7 @@ export default {
     },
 
     closeScreenShare () {
-      this.screeStream.close()
+      this.leaveRoom()
       this.shareStatus = false
     },
 
@@ -214,10 +217,19 @@ export default {
         .then(() => {
           console.log('退房成功')
           // 停止本地流，关闭本地流内部的音视频播放器
-          this.localStream.stop()
           // 关闭本地流，释放摄像头和麦克风访问权限
-          this.localStream.close()
-          this.localStream = null
+
+          if (this.localStream) {
+            this.localStream.stop()
+            this.localStream.close()
+            this.localStream = null
+          }
+
+          if (this.screeStream) {
+            this.screeStream.stop()
+            this.screeStream.close()
+            this.screeStream = null
+          }
           this.client = null
           // 退房成功，可再次调用client.join重新进房开启新的通话。
         })
