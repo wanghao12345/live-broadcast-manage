@@ -6,9 +6,11 @@
 </template>
 
 <script>
-import LibGenerateTestUserSig from '../../utils/lib-generate-test-usersig.min.js'
 // 导入sdk
 import TRTC from 'trtc-js-sdk'
+
+// import  LibGenerateTestUserSig from '../../../utils/lib-generate-test-usersig.min.js'
+var LibGenerateTestUserSig = require('../../../utils/lib-generate-test-usersig.min.js')
 
 export default {
   name: 'RoomVideo',
@@ -168,7 +170,7 @@ export default {
           '\r\n\r\nPlease configure your SDKAPPID/SECRETKEY in js/debug/GenerateTestUserSig.js'
         )
       }
-      const generator = new LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME)
+      const generator = new LibGenerateTestUserSig.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME)
       const userSig = generator.genTestUserSig(userID)
       return {
         sdkAppId: SDKAPPID,
