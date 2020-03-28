@@ -163,7 +163,6 @@ export default {
         }).catch((e) => {
           console.log('屏幕分享失败:', e)
         })
-
       })
     },
 
@@ -211,6 +210,7 @@ export default {
 
     // 退出音视频
     leaveRoom () {
+      this.shareStatus = false
       this.playerStatus = false
       this.client
         .leave()
