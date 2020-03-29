@@ -7,7 +7,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/broad',
       name: 'BroadCastRoom',
       component: BroadCastRoom
     }

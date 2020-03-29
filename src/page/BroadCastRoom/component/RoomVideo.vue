@@ -5,8 +5,8 @@
     <div class="btn-wrapper">
       <div class="btn-list-wrapper">
         <div class="btn-item">
-          <img v-if="micStatus" :src="btnIcon.micOn" alt="">
-          <img v-else :src="btnIcon.micOff" alt="">
+          <img v-if="micStatus" :src="btnIcon.micOn" @click="closeMic" alt="">
+          <img v-else :src="btnIcon.micOff" @click="openMic" alt="">
         </div>
         <div class="btn-item">
           <img v-if="cameraStatus" :src="btnIcon.cameraOn" alt="">
@@ -63,13 +63,15 @@ export default {
         playerOn,
         playerOff
       },
-      micStatus: true,
+      micStatus: false,
       cameraStatus: true,
       shareStatus: false,
-      playerStatus: false
+      playerStatus: false,
+      type: null
     }
   },
   mounted () {
+    this.type = this.$route.query.type
     // 测试用，所以直接创建了，其他需求可自行更改
     this.createClient()
   },
@@ -96,6 +98,7 @@ export default {
       // 初始化后才能加入房间
       this.joinRoom()
     },
+
     // 加入房间
     joinRoom () {
       this.playerStatus = true
@@ -114,7 +117,12 @@ export default {
 
     // 创建本地音视频流
     createStream (userId) {
-      const localStream = TRTC.createStream({userId, audio: true, video: true})
+      let audio = false
+      if (this.type === '1') {
+        audio = true
+        this.micStatus = true
+      }
+      const localStream = TRTC.createStream({userId, audio, video: true})
       this.localStream = localStream
 
       localStream
@@ -145,6 +153,8 @@ export default {
         console.log('取消发布本地流成功')
       })
       // 创建屏幕分享流
+
+      this.micStatus = true
       this.screeStream = TRTC.createStream({ audio: true, screen: true })
       // 监听屏幕分享停止事件
       this.screeStream.on('screen-sharing-stopped', event => {
@@ -166,9 +176,32 @@ export default {
       })
     },
 
+    // 关闭屏幕分享
     closeScreenShare () {
       this.leaveRoom()
       this.shareStatus = false
+    },
+
+    // 关闭音频
+    closeMic () {
+      if (this.localStream) {
+        this.localStream.muteAudio()
+      }
+
+      if (this.screeStream) {
+        this.screeStream.muteAudio()
+      }
+      this.micStatus = false
+    },
+    // 打开音频
+    openMic () {
+      if (this.localStream) {
+        this.localStream.unmuteAudio()
+      }
+      if (this.screeStream) {
+        this.screeStream.unmuteAudio()
+      }
+      this.micStatus = true
     },
 
     // 发布本地音视频流
