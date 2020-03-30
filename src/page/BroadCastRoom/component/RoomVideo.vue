@@ -1,8 +1,8 @@
 <template>
   <div class="video-wrapper">
-    <div v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
-    <div id='local_stream' class="local-stream"></div>
-    <div class="btn-wrapper">
+    <div v-show="!type" v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
+    <div v-show="type" id='local_stream' class="local-stream"></div>
+    <div class="btn-wrapper" v-show="type">
       <div class="btn-list-wrapper">
         <div class="btn-item">
           <img v-if="micStatus" :src="btnIcon.micOn" @click="closeMic" alt="">
@@ -63,7 +63,7 @@ export default {
         playerOn,
         playerOff
       },
-      micStatus: false,
+      micStatus: true,
       cameraStatus: true,
       shareStatus: false,
       playerStatus: false,
@@ -81,6 +81,8 @@ export default {
       if (this.screeStream) {
         this.closeScreenShare()
       }
+      this.shareStatus = false
+      this.playerStatus = true
       // 获取签名
       const userId = this.userId
       const config = this.genTestUserSig(userId)
@@ -108,8 +110,10 @@ export default {
         })
         .then(() => {
           console.log('进房成功')
-          // 创建本地流
-          this.createStream(this.userId)
+          if (this.type) {
+            // 创建本地流
+            this.createStream(this.userId)
+          }
           // 播放远端流
           this.playStream(this.client)
         })
@@ -117,12 +121,7 @@ export default {
 
     // 创建本地音视频流
     createStream (userId) {
-      let audio = false
-      if (this.type === '1') {
-        audio = true
-        this.micStatus = true
-      }
-      const localStream = TRTC.createStream({userId, audio, video: true})
+      const localStream = TRTC.createStream({userId, audio: true, video: true})
       this.localStream = localStream
 
       localStream
@@ -147,6 +146,7 @@ export default {
       }
       this.localStream.close()
       this.shareStatus = true
+      this.playerStatus = false
       // 取消发布
       this.client.unpublish(this.localStream).then(() => {
         // 取消发布本地流成功
@@ -184,21 +184,21 @@ export default {
 
     // 关闭音频
     closeMic () {
-      if (this.localStream) {
+      if (this.playerStatus && this.localStream) {
         this.localStream.muteAudio()
       }
 
-      if (this.screeStream) {
+      if (this.shareStatus && this.screeStream) {
         this.screeStream.muteAudio()
       }
       this.micStatus = false
     },
     // 打开音频
     openMic () {
-      if (this.localStream) {
+      if (this.playerStatus && this.localStream) {
         this.localStream.unmuteAudio()
       }
-      if (this.screeStream) {
+      if (this.shareStatus && this.screeStream) {
         this.screeStream.unmuteAudio()
       }
       this.micStatus = true
