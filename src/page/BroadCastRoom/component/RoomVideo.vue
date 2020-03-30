@@ -9,8 +9,8 @@
           <img v-else :src="btnIcon.micOff" @click="openMic" alt="">
         </div>
         <div class="btn-item">
-          <img v-if="cameraStatus" :src="btnIcon.cameraOn" alt="">
-          <img v-else :src="btnIcon.cameraOff" alt="">
+          <img v-if="cameraStatus" :src="btnIcon.cameraOn" @click="closeCamera" alt="">
+          <img v-else :src="btnIcon.cameraOff" @click="openCamera" alt="">
         </div>
         <div class="btn-item">
           <img v-if="shareStatus" :src="btnIcon.shareOn" @click="closeScreenShare" alt="">
@@ -114,8 +114,6 @@ export default {
         })
         .then(() => {
           console.log('进房成功')
-          if (this.type) {
-          }
           // 创建本地流
           this.createStream(this.userId)
           // 播放远端流
@@ -125,7 +123,13 @@ export default {
 
     // 创建本地音视频流
     createStream (userId) {
-      const localStream = TRTC.createStream({userId, audio: true, video: true})
+      let audio = true
+      let video = false
+      if (this.type) {
+        audio = true
+        video = true
+      }
+      const localStream = TRTC.createStream({userId, audio, video})
       this.localStream = localStream
 
       localStream
@@ -143,7 +147,7 @@ export default {
     },
 
     // 发布屏幕分享
-    createScreenShare() {
+    createScreenShare () {
       if (!this.client) {
         alert('请先启动')
         return
@@ -159,6 +163,7 @@ export default {
       // 创建屏幕分享流
 
       this.micStatus = true
+      this.cameraStatus = true
       this.screeStream = TRTC.createStream({audio: true, screen: true})
       // 监听屏幕分享停止事件
       this.screeStream.on('screen-sharing-stopped', event => {
@@ -181,14 +186,14 @@ export default {
     },
 
     // 关闭屏幕分享
-    closeScreenShare() {
+    closeScreenShare () {
       // 取消发布
       this.leaveRoom()
       this.shareStatus = false
     },
 
     // 关闭音频
-    closeMic() {
+    closeMic () {
       if (this.playerStatus && this.localStream) {
         this.localStream.muteAudio()
       }
@@ -199,7 +204,7 @@ export default {
       this.micStatus = false
     },
     // 打开音频
-    openMic() {
+    openMic () {
       if (this.playerStatus && this.localStream) {
         this.localStream.unmuteAudio()
       }
@@ -208,9 +213,30 @@ export default {
       }
       this.micStatus = true
     },
+    // 关闭视频
+    closeCamera () {
+      if (this.playerStatus && this.localStream) {
+        this.localStream.muteVideo()
+      }
+
+      if (this.shareStatus && this.screeStream) {
+        this.screeStream.muteVideo()
+      }
+      this.cameraStatus = false
+    },
+    // 打开视频
+    openCamera () {
+      if (this.playerStatus && this.localStream) {
+        this.localStream.unmuteVideo()
+      }
+      if (this.shareStatus && this.screeStream) {
+        this.screeStream.unmuteVideo()
+      }
+      this.cameraStatus = true
+    },
 
     // 发布本地音视频流
-    publishStream(localStream, client) {
+    publishStream (localStream, client) {
       client
         .publish(localStream)
         .catch(error => {
@@ -218,11 +244,15 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
+          if (!this.type) {
+            localStream.muteAudio()
+            localStream.muteVideo()
+          }
         })
     },
 
     // 订阅远端流--加入房间之前
-    subscribeStream(client) {
+    subscribeStream (client) {
       client.on('stream-added', event => {
         const remoteStream = event.stream
         console.log('远端流增加: ' + remoteStream.getId())
@@ -232,7 +262,7 @@ export default {
     },
 
     // 播放远端流
-    playStream(client) {
+    playStream (client) {
       client.on('stream-subscribed', event => {
         const Stream = event.stream
         console.log('远端流订阅成功：' + Stream.getId())
