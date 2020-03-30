@@ -308,7 +308,7 @@ export default {
     },
 
     // 退出音视频
-    leaveRoom() {
+    leaveRoom () {
       this.shareStatus = false
       this.playerStatus = false
       this.client
@@ -339,7 +339,7 @@ export default {
     },
 
     // 获取用户签名--前端测试用
-    genTestUserSig(userID) {
+    genTestUserSig (userID) {
       /**
        * 腾讯云 SDKAppId，需要替换为您自己账号下的 SDKAppId。
        *
