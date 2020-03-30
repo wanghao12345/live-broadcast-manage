@@ -85,6 +85,10 @@ export default {
         alert('请先关闭分享，再打开')
         return
       }
+      if (this.type) {
+        this.cameraStatus = true
+        this.micStatus = true
+      }
       this.shareStatus = false
       this.playerStatus = true
       // 获取签名
