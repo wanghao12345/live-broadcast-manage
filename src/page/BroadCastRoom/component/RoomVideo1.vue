@@ -13,7 +13,7 @@
           <img v-else :src="btnIcon.cameraOff" alt="">
         </div>
         <div class="btn-item">
-          <img v-if="shareStatus" :src="btnIcon.shareOn" @click="closeScreenShare" alt="">
+          <img v-if="shareStatus" :src="btnIcon.shareOn"  @click="closeScreenShare" alt="">
           <img v-else :src="btnIcon.shareOff" @click="createScreenShare" alt="">
         </div>
         <div class="btn-item">
@@ -76,7 +76,6 @@ export default {
     if (!this.type) {
       this.createClient()
     }
-    // this.createClient()
   },
   methods: {
     // 创建链接
@@ -115,9 +114,9 @@ export default {
         .then(() => {
           console.log('进房成功')
           if (this.type) {
+            // 创建本地流
+            this.createStream(this.userId)
           }
-          // 创建本地流
-          this.createStream(this.userId)
           // 播放远端流
           this.playStream(this.client)
         })
@@ -143,7 +142,7 @@ export default {
     },
 
     // 发布屏幕分享
-    createScreenShare() {
+    createScreenShare () {
       if (!this.client) {
         alert('请先启动')
         return
@@ -159,7 +158,7 @@ export default {
       // 创建屏幕分享流
 
       this.micStatus = true
-      this.screeStream = TRTC.createStream({audio: true, screen: true})
+      this.screeStream = TRTC.createStream({ audio: true, screen: true })
       // 监听屏幕分享停止事件
       this.screeStream.on('screen-sharing-stopped', event => {
         console.log('screen sharing was stopped')
@@ -181,14 +180,14 @@ export default {
     },
 
     // 关闭屏幕分享
-    closeScreenShare() {
+    closeScreenShare () {
       // 取消发布
       this.leaveRoom()
       this.shareStatus = false
     },
 
     // 关闭音频
-    closeMic() {
+    closeMic () {
       if (this.playerStatus && this.localStream) {
         this.localStream.muteAudio()
       }
@@ -199,7 +198,7 @@ export default {
       this.micStatus = false
     },
     // 打开音频
-    openMic() {
+    openMic () {
       if (this.playerStatus && this.localStream) {
         this.localStream.unmuteAudio()
       }
@@ -210,7 +209,7 @@ export default {
     },
 
     // 发布本地音视频流
-    publishStream(localStream, client) {
+    publishStream (localStream, client) {
       client
         .publish(localStream)
         .catch(error => {
@@ -222,7 +221,7 @@ export default {
     },
 
     // 订阅远端流--加入房间之前
-    subscribeStream(client) {
+    subscribeStream (client) {
       client.on('stream-added', event => {
         const remoteStream = event.stream
         console.log('远端流增加: ' + remoteStream.getId())
@@ -232,7 +231,7 @@ export default {
     },
 
     // 播放远端流
-    playStream(client) {
+    playStream (client) {
       client.on('stream-subscribed', event => {
         const Stream = event.stream
         console.log('远端流订阅成功：' + Stream.getId())
@@ -255,7 +254,7 @@ export default {
     },
 
     // 退出音视频
-    leaveRoom() {
+    leaveRoom () {
       this.shareStatus = false
       this.playerStatus = false
       this.client
@@ -286,7 +285,7 @@ export default {
     },
 
     // 获取用户签名--前端测试用
-    genTestUserSig(userID) {
+    genTestUserSig (userID) {
       /**
        * 腾讯云 SDKAppId，需要替换为您自己账号下的 SDKAppId。
        *
@@ -332,34 +331,34 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .video-wrapper {
+  .video-wrapper{
     width: 100%;
     height: 100%;
     position: relative;
-    .distant-stream {
+    .distant-stream{
       width: 100%;
       height: 100%;
     }
-    .local-stream {
+    .local-stream{
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: space-between;
     }
-    .btn-wrapper {
+    .btn-wrapper{
       width: 100%;
       height: 100px;
       position: absolute;
       bottom: 0;
       left: 0;
-      .btn-list-wrapper {
+      .btn-list-wrapper{
         width: 100%;
         height: 70px;
         display: flex;
         justify-content: center;
         align-items: center;
         box-sizing: border-box;
-        .btn-item {
+        .btn-item{
           width: 60px;
           height: 60px;
           display: flex;
@@ -370,13 +369,13 @@ export default {
           box-shadow: 0px 0px 5px #dad6d6;
           margin: 0 20px;
           cursor: pointer;
-          img {
+          img{
             width: 30px;
             height: 30px;
           }
         }
       }
-      p.tip {
+      p.tip{
         text-align: center;
       }
     }
