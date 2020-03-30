@@ -23,6 +23,7 @@
       </div>
       <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
+    <div v-show="!client" class="stop-wrapper"></div>
   </div>
 </template>
 
@@ -63,8 +64,8 @@ export default {
         playerOn,
         playerOff
       },
-      micStatus: true,
-      cameraStatus: true,
+      micStatus: false,
+      cameraStatus: false,
       shareStatus: false,
       playerStatus: false,
       type: null
@@ -153,7 +154,7 @@ export default {
     // 发布屏幕分享
     createScreenShare () {
       if (!this.client) {
-        alert('请先启动')
+        alert('还没有开始直播，请先开始直播！')
         return
       }
       this.localStream.close()
@@ -198,6 +199,10 @@ export default {
 
     // 关闭音频
     closeMic () {
+      if (!this.client) {
+        alert('还没有开始直播，请先开始直播！')
+        return
+      }
       if (this.playerStatus && this.localStream) {
         this.localStream.muteAudio()
       }
@@ -209,6 +214,10 @@ export default {
     },
     // 打开音频
     openMic () {
+      if (!this.client) {
+        alert('还没有开始直播，请先开始直播！')
+        return
+      }
       if (this.playerStatus && this.localStream) {
         this.localStream.unmuteAudio()
       }
@@ -219,6 +228,10 @@ export default {
     },
     // 关闭视频
     closeCamera () {
+      if (!this.client) {
+        alert('还没有开始直播，请先开始直播！')
+        return
+      }
       if (this.playerStatus && this.localStream) {
         this.localStream.muteVideo()
       }
@@ -230,6 +243,10 @@ export default {
     },
     // 打开视频
     openCamera () {
+      if (!this.client) {
+        alert('还没有开始直播，请先开始直播！')
+        return
+      }
       if (this.playerStatus && this.localStream) {
         this.localStream.unmuteVideo()
       }
@@ -261,7 +278,9 @@ export default {
         const remoteStream = event.stream
         console.log('远端流增加: ' + remoteStream.getId())
         // 订阅远端流
-        client.subscribe(remoteStream)
+        client.subscribe(remoteStream).then(() => {
+          console.log('测试')
+        })
       })
     },
 
@@ -412,6 +431,21 @@ export default {
       }
       p.tip {
         text-align: center;
+      }
+    }
+    .stop-wrapper{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -50px;
+      margin-top: -100px;
+      width: 100px;
+      height: 100px;
+      border-radius: 200px;
+      background-color: red;
+      img{
+        width: 100%;
+        height: 100%;
       }
     }
   }
