@@ -36,7 +36,7 @@ export default {
     height: 100%;
     background-color: #f1f2f4;
     overflow: auto;
-    min-width: 1200px;
+    min-width: 1000px;
     min-height: 660px;
     display: flex;
     flex-direction: column;

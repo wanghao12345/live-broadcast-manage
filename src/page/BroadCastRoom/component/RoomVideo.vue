@@ -1,5 +1,5 @@
 <template>
-  <div class="video-wrapper">
+  <div class="video-wrapper" v-loading="loading">
     <div v-show="!type" v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
     <div v-show="type" id='local_stream' class="local-stream"></div>
     <div class="btn-wrapper" v-show="type">
@@ -35,6 +35,7 @@
 
 <script>
 // 导入sdk
+import axios from 'axios'
 import TRTC from 'trtc-js-sdk'
 import micOn from '../../../assets/img/big-mic-on.png'
 import micOff from '../../../assets/img/big-mic-off.png'
@@ -75,16 +76,17 @@ export default {
       shareStatus: false,
       playerStatus: false,
       type: null,
-      currentBroadCastStats: false
+      currentBroadCastStats: false,
+      userSigConfig: {
+        sdkAppId: '',
+        userSig: ''
+      },
+      loading: false
     }
   },
   mounted () {
     this.type = this.$route.query.type
-    // 测试用，所以直接创建了，其他需求可自行更改
-    if (!this.type) {
-      this.createClient()
-    }
-    // this.createClient()
+    this.getUserSig(this.userId)
   },
   methods: {
     // 创建链接
@@ -101,9 +103,13 @@ export default {
       this.playerStatus = true
       // 获取签名
       const userId = this.userId
-      const config = this.genTestUserSig(userId)
-      const sdkAppId = config.sdkAppId
-      const userSig = config.userSig
+
+      const sdkAppId = this.userSigConfig.sdkAppId
+      const userSig = this.userSigConfig.userSig
+
+      // const config = this.genTestUserSig(userId)
+      // const sdkAppId = config.sdkAppId
+      // const userSig = config.userSig
 
       this.client = TRTC.createClient({
         mode: 'videoCall',
@@ -395,11 +401,30 @@ export default {
       }
       const generator = new LibGenerateTestUserSig.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME)
       const userSig = generator.genTestUserSig(userID)
+
       return {
         sdkAppId: SDKAPPID,
         userSig: userSig
       }
+    },
+
+    // 获取正式用户签名
+    getUserSig (userID) {
+      this.loading = true
+      axios.post('https://api1.leading-c.cn/mol/v1/appx/live/getTencentApiInfo.do?userId=' + userID).then((response) => {
+        const res = response.data
+        console.log(res)
+        this.userSigConfig = res
+        if (!this.type) {
+          this.createClient()
+        }
+      }).catch(function (error) {
+        console.log(error)
+      }).finally(() => {
+        this.loading = false
+      })
     }
+
   }
 }
 </script>

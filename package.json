@@ -11,6 +11,9 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.19.2",
+    "element-ui": "^2.13.0",
+    "file-loader": "^1.1.11",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "trtc-js-sdk": "^4.3.10",
