@@ -28,7 +28,9 @@
       <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
     <div v-show="(type && !client) || (!type && !currentBroadCastStats)" class="stop-wrapper">
-      <div class="content"></div>
+      <div class="content">
+        <img :src="personIcon" alt="头像">
+      </div>
     </div>
   </div>
 </template>
@@ -37,6 +39,9 @@
 // 导入sdk
 import axios from 'axios'
 import TRTC from 'trtc-js-sdk'
+
+import personIcon from '../../../assets/img/person.png'
+
 import micOn from '../../../assets/img/big-mic-on.png'
 import micOff from '../../../assets/img/big-mic-off.png'
 
@@ -71,6 +76,7 @@ export default {
         playerOn,
         playerOff
       },
+      personIcon: personIcon,
       micStatus: false,
       cameraStatus: false,
       shareStatus: false,
@@ -505,11 +511,10 @@ export default {
         width: 100px;
         height: 100px;
         border-radius: 200px;
-        background-color: red;
-      }
-      img{
-        width: 100%;
-        height: 100%;
+        img{
+          width: 100%;
+          height: 100%;
+        }
       }
     }
   }
