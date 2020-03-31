@@ -139,8 +139,10 @@ export default {
         })
         .then(() => {
           console.log('进房成功')
-          // 创建本地流
-          this.createStream(this.userId)
+          if (this.type) {
+            // 创建本地流
+            this.createStream(this.userId)
+          }
           // 播放远端流
           this.playStream(this.client)
         })
