@@ -303,11 +303,6 @@ export default {
         const remoteStream = event.stream
 
         remoteStream.on('player-state-changed', event => {
-          const urlList = client.getRemoteMutedState()
-          this.currentNum = urlList.length
-          this.$emit('handleUpdateCurrentPersonNum', this.currentNum)
-          console.log('用户列表：', urlList)
-
           if (event.state === 'PLAYING') {
             this.currentBroadCastStats = true
           } else {
@@ -427,7 +422,6 @@ export default {
       this.loading = true
       axios.post('https://api1.leading-c.cn/mol/v1/appx/live/getTencentApiInfo.do?userId=' + userID).then((response) => {
         const res = response.data
-        console.log(res)
         this.userSigConfig = res
         if (!this.type) {
           this.createClient()
