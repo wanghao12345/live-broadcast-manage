@@ -82,6 +82,7 @@ export default {
       shareStatus: false,
       playerStatus: false,
       type: null,
+      currentNum: 0,
       currentBroadCastStats: false,
       userSigConfig: {
         sdkAppId: '',
@@ -300,6 +301,11 @@ export default {
         const remoteStream = event.stream
 
         remoteStream.on('player-state-changed', event => {
+          const urlList = client.getRemoteMutedState()
+          this.currentNum = urlList.length
+          this.$emit('handleUpdateCurrentPersonNum', this.currentNum)
+          console.log('用户列表：', urlList)
+
           if (event.state === 'PLAYING') {
             this.currentBroadCastStats = true
           } else {

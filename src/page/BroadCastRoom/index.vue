@@ -2,11 +2,13 @@
   <div class="room-wrapper">
     <div class="room-top-wrapper">
       <span>HR易【刘秀银】视频直播间</span>
-      <span>直播人数：299</span>
+      <span>直播人数：{{currentNum}}</span>
     </div>
     <div class="room-bottom-wrapper">
       <div class="room-video-wrapper">
-        <RoomVideo />
+        <RoomVideo
+          @handleUpdateCurrentPersonNum="handleUpdateCurrentPersonNum"
+        />
       </div>
       <div class="room-comment-wrapper">
         <RoomComment />
@@ -26,6 +28,19 @@ export default {
   components: {
     RoomVideo,
     RoomComment
+  },
+  data () {
+    return {
+      currentNum: 0
+    }
+  },
+  methods: {
+    /**
+     * 当前的人数
+     */
+    handleUpdateCurrentPersonNum (val) {
+      this.currentNum = val
+    }
   }
 }
 </script>
