@@ -23,7 +23,9 @@
       </div>
       <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
-    <div v-show="!client" class="stop-wrapper"></div>
+    <div v-show="(type && !client) || (!type && !currentBroadCastStats)" class="stop-wrapper">
+      <div class="content"></div>
+    </div>
   </div>
 </template>
 
@@ -68,7 +70,8 @@ export default {
       cameraStatus: false,
       shareStatus: false,
       playerStatus: false,
-      type: null
+      type: null,
+      currentBroadCastStats: false
     }
   },
   mounted () {
@@ -212,6 +215,7 @@ export default {
       }
       this.micStatus = false
     },
+
     // 打开音频
     openMic () {
       if (!this.client) {
@@ -226,6 +230,7 @@ export default {
       }
       this.micStatus = true
     },
+
     // 关闭视频
     closeCamera () {
       if (!this.client) {
@@ -241,6 +246,7 @@ export default {
       }
       this.cameraStatus = false
     },
+
     // 打开视频
     openCamera () {
       if (!this.client) {
@@ -276,6 +282,16 @@ export default {
     subscribeStream (client) {
       client.on('stream-added', event => {
         const remoteStream = event.stream
+
+        remoteStream.on('player-state-changed', event => {
+          if (event.state === 'PLAYING') {
+            this.currentBroadCastStats = true
+          } else {
+            this.currentBroadCastStats = false
+          }
+          console.log(`远端流监控：${event.type} player is ${event.state} because of ${event.reason}`);
+        })
+
         console.log('远端流增加: ' + remoteStream.getId())
         // 订阅远端流
         client.subscribe(remoteStream).then(() => {
@@ -405,6 +421,7 @@ export default {
       position: absolute;
       bottom: 0;
       left: 0;
+      z-index: 3;
       .btn-list-wrapper {
         width: 100%;
         height: 70px;
@@ -435,14 +452,21 @@ export default {
     }
     .stop-wrapper{
       position: absolute;
-      left: 50%;
-      top: 50%;
-      margin-left: -50px;
-      margin-top: -100px;
-      width: 100px;
-      height: 100px;
-      border-radius: 200px;
-      background-color: red;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      background-color: white;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+      .content{
+        width: 100px;
+        height: 100px;
+        border-radius: 200px;
+        background-color: red;
+      }
       img{
         width: 100%;
         height: 100%;
