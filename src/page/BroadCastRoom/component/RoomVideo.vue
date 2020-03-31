@@ -305,7 +305,7 @@ export default {
           } else {
             this.currentBroadCastStats = false
           }
-          console.log(`远端流监控：${event.type} player is ${event.state} because of ${event.reason}`);
+          console.log(`远端流监控：${event.type} player is ${event.state} because of ${event.reason}`)
         })
 
         console.log('远端流增加: ' + remoteStream.getId())
