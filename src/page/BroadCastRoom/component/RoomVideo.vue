@@ -7,18 +7,22 @@
         <div class="btn-item">
           <img v-if="micStatus" :src="btnIcon.micOn" @click="closeMic" alt="">
           <img v-else :src="btnIcon.micOff" @click="openMic" alt="">
+          <span>{{micStatus ? '关闭音频' : '开启音频'}}</span>
         </div>
         <div class="btn-item">
           <img v-if="cameraStatus" :src="btnIcon.cameraOn" @click="closeCamera" alt="">
           <img v-else :src="btnIcon.cameraOff" @click="openCamera" alt="">
+          <span>{{cameraStatus ? '关闭视频' : '开启视频'}}</span>
         </div>
         <div class="btn-item">
           <img v-if="shareStatus" :src="btnIcon.shareOn" @click="closeScreenShare" alt="">
           <img v-else :src="btnIcon.shareOff" @click="createScreenShare" alt="">
+          <span>{{shareStatus ? '停止分享' : '分享屏幕'}}</span>
         </div>
         <div class="btn-item">
           <img v-if="playerStatus" :src="btnIcon.playerOn" @click="leaveRoom" alt="">
           <img v-else :src="btnIcon.playerOff" @click="createClient" alt="">
+          <span>{{playerStatus ? '停止直播' : '开始直播'}}</span>
         </div>
       </div>
       <!--<p class="tip">技术支持：知服宝</p>-->
@@ -417,32 +421,43 @@ export default {
     }
     .btn-wrapper {
       width: 100%;
-      height: 100px;
+      height: 80px;
       position: absolute;
       bottom: 0;
       left: 0;
       z-index: 3;
+      background-color: #EEEEEE;
       .btn-list-wrapper {
         width: 100%;
-        height: 70px;
+        height: 100%;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         box-sizing: border-box;
         .btn-item {
-          width: 60px;
+          flex: 1;
           height: 60px;
           display: flex;
           justify-content: center;
           align-items: center;
           border-radius: 100px;
-          background-color: white;
-          box-shadow: 0px 0px 5px #dad6d6;
           margin: 0 20px;
           cursor: pointer;
           img {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 38px;
+          }
+          span{
+            font-size:14px;
+            font-weight:400;
+            color:rgba(0,0,0,1);
+            margin-left: 20px;
+          }
+          &:first-child{
+            img {
+              width: 31px;
+              height: 40px;
+            }
           }
         }
       }

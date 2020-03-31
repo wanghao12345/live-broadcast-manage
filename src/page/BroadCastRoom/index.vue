@@ -1,6 +1,9 @@
 <template>
   <div class="room-wrapper">
-    <div class="room-top-wrapper">【测试】视频直播间</div>
+    <div class="room-top-wrapper">
+      <span>HR易【刘秀银】视频直播间</span>
+      <span>直播人数：299</span>
+    </div>
     <div class="room-bottom-wrapper">
       <div class="room-video-wrapper">
         <RoomVideo />
@@ -8,6 +11,9 @@
       <div class="room-comment-wrapper">
         <RoomComment />
       </div>
+    </div>
+    <div class="root-footer-wrapper">
+      技术支持：知服宝
     </div>
   </div>
 </template>
@@ -31,31 +37,49 @@ export default {
     background-color: #f1f2f4;
     overflow: auto;
     min-width: 1200px;
+    min-height: 660px;
+    display: flex;
+    flex-direction: column;
     .room-top-wrapper{
       width: 100%;
-      height: 50px;
-      background-color: white;
+      height: 60px;
+      background-color: #78808B;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
+      text-align: left;
+      box-sizing: border-box;
+      padding: 0 20px;
+      font-size: 14px;
+      color: white;
     }
     .room-bottom-wrapper{
-      width: 1200px;
-      height: 600px;
-      margin: 20px auto;
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 20px;
       display: flex;
       justify-content: space-between;
       .room-video-wrapper{
-        width: 850px;
+        flex: 1;
         height: 100%;
         background-color: white;
       }
       .room-comment-wrapper{
-        flex: 1;
+        width: 300px;
         height: 100%;
         background-color: white;
         margin-left: 20px;
       }
+    }
+    .root-footer-wrapper{
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #999999;
+      font-size: 13px;
     }
   }
 </style>
