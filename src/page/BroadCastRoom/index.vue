@@ -37,6 +37,7 @@ export default {
   methods: {
     /**
      * 当前的人数
+     * /usr/local/51wenyi/data/upload/mol
      */
     handleUpdateCurrentPersonNum (val) {
       this.currentNum = val
