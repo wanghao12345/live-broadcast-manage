@@ -60,7 +60,8 @@ export default {
   name: 'RoomVideo',
   data () {
     return {
-      userId: 'user_' + parseInt(Math.random() * 100000000), // 用户id --可更改
+      // userId: 'user_' + parseInt(Math.random() * 100000000), // 用户id --可更改
+      userId: 'user_123', // 用户id --可更改
       roomId: 123, // 房间号--加入相同房间才能聊
       client: '', // 客户端服务
       remoteStream: '', // 远方播放流
