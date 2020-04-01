@@ -1,8 +1,8 @@
 <template>
   <div class="video-wrapper" v-loading="loading">
-    <div v-if="false" v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
-    <div id='local_stream' class="local-stream"></div>
-    <div class="btn-wrapper">
+    <div v-show="!type" v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
+    <div v-show="type" id='local_stream' class="local-stream"></div>
+    <div class="btn-wrapper" v-show="type">
       <div class="btn-list-wrapper">
         <div class="btn-item">
           <img v-if="micStatus" :src="btnIcon.micOn" @click="closeMic" alt="">
@@ -27,7 +27,7 @@
       </div>
       <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
-    <div v-show="!client" class="stop-wrapper">
+    <div v-show="(type && !client) || (!type && !currentBroadCastStats)" class="stop-wrapper">
       <div class="content">
         <img :src="personIcon" alt="头像">
       </div>
@@ -77,10 +77,11 @@ export default {
         playerOff
       },
       personIcon: personIcon,
-      micStatus: true,
-      cameraStatus: true,
+      micStatus: false,
+      cameraStatus: false,
       shareStatus: false,
       playerStatus: false,
+      type: null,
       currentNum: 0,
       currentBroadCastStats: false,
       userSigConfig: {
@@ -91,6 +92,7 @@ export default {
     }
   },
   mounted () {
+    this.type = this.$route.query.type
     this.getUserSig(this.userId)
   },
   methods: {
@@ -99,6 +101,10 @@ export default {
       if (this.shareStatus && this.screeStream) {
         alert('请先关闭分享，再打开')
         return
+      }
+      if (this.type) {
+        this.cameraStatus = true
+        this.micStatus = true
       }
       this.shareStatus = false
       this.playerStatus = true
@@ -119,7 +125,7 @@ export default {
         userSig
       })
       // 注册远程监听，要放在加入房间前--这里用了发布订阅模式
-      // this.subscribeStream(this.client)
+      this.subscribeStream(this.client)
       // 初始化后才能加入房间
       this.joinRoom()
     },
@@ -133,16 +139,24 @@ export default {
         })
         .then(() => {
           console.log('进房成功')
-          // 创建本地流
-          this.createStream(this.userId)
+          if (this.type) {
+            // 创建本地流
+            this.createStream(this.userId)
+          }
           // 播放远端流
-          // this.playStream(this.client)
+          this.playStream(this.client)
         })
     },
 
     // 创建本地音视频流
     createStream (userId) {
-      const localStream = TRTC.createStream({userId, audio: true, video: true})
+      let audio = true
+      let video = false
+      if (this.type) {
+        audio = true
+        video = true
+      }
+      const localStream = TRTC.createStream({userId, audio, video})
       this.localStream = localStream
 
       localStream
@@ -276,6 +290,10 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
+          if (!this.type) {
+            localStream.muteAudio()
+            localStream.muteVideo()
+          }
         })
     },
 
@@ -405,6 +423,9 @@ export default {
       axios.post('https://api1.leading-c.cn/mol/v1/appx/live/getTencentApiInfo.do?userId=' + userID).then((response) => {
         const res = response.data
         this.userSigConfig = res
+        if (!this.type) {
+          this.createClient()
+        }
       }).catch(function (error) {
         console.log(error)
       }).finally(() => {
@@ -430,8 +451,6 @@ export default {
       height: 100%;
       display: flex;
       justify-content: space-between;
-      box-sizing: border-box;
-      padding-bottom: 80px;
     }
     .btn-wrapper {
       width: 100%;
