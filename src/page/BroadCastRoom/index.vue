@@ -7,7 +7,11 @@
     <div class="room-bottom-wrapper">
       <div class="room-video-wrapper">
         <RoomVideo
+          v-if="type"
           @handleUpdateCurrentPersonNum="handleUpdateCurrentPersonNum"
+        />
+        <RoomCommon
+          v-if="!type"
         />
       </div>
       <div class="room-comment-wrapper">
@@ -23,16 +27,22 @@
 <script>
 import RoomComment from './component/RoomComment'
 import RoomVideo from './component/RoomVideo'
+import RoomCommon from './component/RoomCommon'
 export default {
   name: 'BroadCastRoom',
   components: {
     RoomVideo,
-    RoomComment
+    RoomComment,
+    RoomCommon
   },
   data () {
     return {
-      currentNum: 0
+      currentNum: 0,
+      type: null
     }
+  },
+  mounted () {
+    this.type = this.$route.query.type
   },
   methods: {
     /**
