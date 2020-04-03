@@ -187,11 +187,11 @@ export default {
       })
 
       // 指明该 shareClient 默认不接收任何远端流 （它只负责发送屏幕分享流）
-      // this.shareClient.setDefaultMuteRemoteStreams(true)
+      this.shareClient.setDefaultMuteRemoteStreams(true)
       this.shareClient.join({roomId: this.roomId}).then(() => {
         console.log('shareClient join success')
         // 创建屏幕分享流
-        this.screeStream = TRTC.createStream({ audio: true, screen: true })
+        this.screeStream = TRTC.createStream({ audio: false, screen: true })
         this.screeStream.initialize().then(() => {
           this.screeStream.play('remote_stream')
           this.shareStatus = true
