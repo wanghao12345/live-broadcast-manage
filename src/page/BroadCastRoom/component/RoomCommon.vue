@@ -24,7 +24,8 @@ export default {
   mounted () {
     new Aliplayer({
       id: 'J_prismPlayer', // 容器id
-      source: 'http://api2.leading-c.cn/live/1400330338_123_user_123_main.flv',
+      // source: 'http://api2.leading-c.cn/live/1400330338_123_user_123_main.flv',
+      source: 'http://api2.leading-c.cn/live/streamId_123456789.flv',
       cover: 'http://cdn.img.mtedu.com/images/assignment/day_3.jpg',
       width: '100%',
       height: '100%',

@@ -1,13 +1,7 @@
 <template>
   <div class="video-wrapper" v-loading="loading">
-    <div
-      id="remote_stream"
-      :class="`remote-stream ${shareStatus ? 'hasScreen' : ''}`"
-    ></div>
-    <div
-      id='local_stream'
-      :class="`local-stream ${shareStatus ? 'hasScreen' : ''} ${playerStatus ? 'hasPlayer' : ''}`"
-    ></div>
+    <div v-if="false" v-html="remoteStream" :class="remoteStream ? 'distant-stream' : ''"></div>
+    <div id='local_stream' class="local-stream"></div>
     <div class="btn-wrapper">
       <div class="btn-list-wrapper">
         <div class="btn-item">
@@ -33,7 +27,7 @@
       </div>
       <!--<p class="tip">技术支持：知服宝</p>-->
     </div>
-    <div v-show="(!client) && (!shareClient)" class="stop-wrapper">
+    <div v-show="!client" class="stop-wrapper">
       <div class="content">
         <img :src="personIcon" alt="头像">
       </div>
@@ -68,11 +62,8 @@ export default {
     return {
       // userId: 'user_' + parseInt(Math.random() * 100000000), // 用户id --可更改
       userId: 'user_123', // 用户id --可更改
-      shareId: 'user_1234',
       roomId: 123, // 房间号--加入相同房间才能聊
-      streamId: 'streamId_123456789',
       client: '', // 客户端服务
-      shareClient: '', // 分享客户端服务
       remoteStream: '', // 远方播放流
       localStream: '', // 本地流
       screenStream: '', // 分享流
@@ -97,20 +88,21 @@ export default {
         sdkAppId: '',
         userSig: ''
       },
-      shareSigConfig: {
-        sdkAppId: '',
-        userSig: ''
-      },
       loading: false
     }
   },
   mounted () {
-    this.getUserSig(1, this.userId)
-    this.getUserSig(2, this.shareId)
+    this.getUserSig(this.userId)
   },
   methods: {
     // 创建链接
     createClient () {
+      if (this.shareStatus && this.screeStream) {
+        alert('请先关闭分享，再打开')
+        return
+      }
+      this.shareStatus = false
+      this.playerStatus = true
       // 获取签名
       const userId = this.userId
 
@@ -125,9 +117,7 @@ export default {
         mode: 'videoCall',
         sdkAppId,
         userId,
-        userSig,
-        streamId: this.streamId,
-        pureAudioPushMode: 1
+        userSig
       })
       // 注册远程监听，要放在加入房间前--这里用了发布订阅模式
       // this.subscribeStream(this.client)
@@ -165,7 +155,6 @@ export default {
           console.log('初始化本地流成功')
           // 创建好后才能播放 本地流播放 local_stream 是div的id
           localStream.play('local_stream')
-          this.playerStatus = true
           // 创建好后才能发布
           this.publishStream(localStream, this.client)
         })
@@ -173,34 +162,48 @@ export default {
 
     // 发布屏幕分享
     createScreenShare () {
-      // 使用一个独立的用户ID进行推送屏幕分享
-      const { sdkAppId, userSig } = this.shareSigConfig
-      this.shareClient = TRTC.createClient({
-        mode: 'videoCall',
-        sdkAppId,
-        userId: this.shareId,
-        userSig,
-        streamId: this.streamId,
-        pureAudioPushMode: 1
+      if (!this.client) {
+        alert('还没有开始直播，请先开始直播！')
+        return
+      }
+      this.localStream.close()
+      this.shareStatus = true
+      this.playerStatus = false
+      // 取消发布
+      this.client.unpublish(this.localStream).then(() => {
+        // 取消发布本地流成功
+        console.log('取消发布本地流成功')
+      })
+      // 创建屏幕分享流
+
+      this.micStatus = true
+      this.cameraStatus = true
+      this.screeStream = TRTC.createStream({audio: true, screen: true})
+      // 监听屏幕分享停止事件
+      this.screeStream.on('screen-sharing-stopped', event => {
+        console.log('screen sharing was stopped')
       })
 
-      // 指明该 shareClient 默认不接收任何远端流 （它只负责发送屏幕分享流）
-      // this.shareClient.setDefaultMuteRemoteStreams(true)
-      this.shareClient.join({roomId: this.roomId}).then(() => {
-        console.log('shareClient join success')
-        // 创建屏幕分享流
-        this.screeStream = TRTC.createStream({ audio: true, screen: true })
-        this.screeStream.initialize().then(() => {
-          this.shareStatus = true
-          this.screeStream.play('remote_stream')
-          this.publishStream(this.screeStream, this.shareClient)
+      // 初始化屏幕分享流
+      this.screeStream.initialize().then(() => {
+        console.log('screencast stream init success')
+        // 发布屏幕分享流
+        this.screeStream.play('local_stream')
+        this.publishStream(this.screeStream, this.client)
+
+        this.client.publish(this.screeStream).then(() => {
+          console.log('screen casting')
+        }).catch((e) => {
+          console.log('屏幕分享失败:', e)
         })
       })
     },
 
     // 关闭屏幕分享
     closeScreenShare () {
-      this.leaveShare()
+      // 取消发布
+      this.leaveRoom()
+      this.shareStatus = false
     },
 
     // 关闭音频
@@ -324,38 +327,27 @@ export default {
 
     // 退出音视频
     leaveRoom () {
+      this.shareStatus = false
       this.playerStatus = false
       this.client
         .leave()
         .then(() => {
           console.log('退房成功')
+          // 停止本地流，关闭本地流内部的音视频播放器
+          // 关闭本地流，释放摄像头和麦克风访问权限
+
           if (this.localStream) {
             this.localStream.stop()
             this.localStream.close()
             this.localStream = null
           }
-          this.client = null
-          // 退房成功，可再次调用client.join重新进房开启新的通话。
-        })
-        .catch(error => {
-          console.error('退房失败 ' + error)
-          // 错误不可恢复，需要刷新页面。
-        })
-    },
 
-    // 退出分享
-    leaveShare () {
-      this.shareStatus = false
-      this.client
-        .leave()
-        .then(() => {
-          console.log('退房成功')
           if (this.screeStream) {
             this.screeStream.stop()
             this.screeStream.close()
             this.screeStream = null
           }
-          this.shareClient = null
+          this.client = null
           // 退房成功，可再次调用client.join重新进房开启新的通话。
         })
         .catch(error => {
@@ -409,16 +401,11 @@ export default {
     },
 
     // 获取正式用户签名
-    getUserSig (type, userID) {
+    getUserSig (userID) {
       this.loading = true
       axios.post('https://api1.leading-c.cn/mol/v1/appx/live/getTencentApiInfo.do?userId=' + userID).then((response) => {
         const res = response.data
-        if (type === 1) {
-          this.userSigConfig = res
-        }
-        if (type === 2) {
-          this.shareSigConfig = res
-        }
+        this.userSigConfig = res
       }).catch(function (error) {
         console.log(error)
       }).finally(() => {
@@ -435,29 +422,17 @@ export default {
     width: 100%;
     height: 100%;
     position: relative;
-    display: flex;
-    justify-content: space-between;
-    .remote-stream {
+    .distant-stream {
       width: 100%;
       height: 100%;
-      display: none;
-      &.hasScreen{
-        display: block;
-        flex: 1;
-        height: 100%;
-      }
     }
     .local-stream {
       width: 100%;
       height: 100%;
-      display: none;
-      &.hasScreen{
-        width: 200px;
-        height: 200px;
-      }
-      &.hasPlayer{
-        display: block;
-      }
+      display: flex;
+      justify-content: space-between;
+      box-sizing: border-box;
+      padding-bottom: 80px;
     }
     .btn-wrapper {
       width: 100%;
