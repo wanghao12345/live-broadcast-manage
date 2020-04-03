@@ -62,7 +62,7 @@ export default {
     background-color: #f1f2f4;
     overflow: auto;
     min-width: 1000px;
-    min-height: 660px;
+    min-height: 800px;
     display: flex;
     flex-direction: column;
     .room-top-wrapper{

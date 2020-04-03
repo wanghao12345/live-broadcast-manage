@@ -57,6 +57,9 @@ export default {
       this.loading = true
       postLogin(this.ruleForm).then(res => {
         console.log(res)
+        if (res.status === 'Error') {
+          this.$message.error('注册号码或登录密码错误！')
+        }
       }).finally(() => {
         this.loading = false
       })

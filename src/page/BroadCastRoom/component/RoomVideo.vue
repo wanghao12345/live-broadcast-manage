@@ -210,7 +210,7 @@ export default {
     // 关闭音频
     closeMic () {
       if ((!this.client) && (!this.shareClient)) {
-        alert('还没有开始直播，请先开始直播！')
+        this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.localStream) {
@@ -226,7 +226,7 @@ export default {
     // 打开音频
     openMic () {
       if ((!this.client) && (!this.shareClient)) {
-        alert('还没有开始直播，请先开始直播！')
+        this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.localStream) {
@@ -241,7 +241,7 @@ export default {
     // 关闭视频
     closeCamera () {
       if ((!this.client) && (!this.shareClient)) {
-        alert('还没有开始直播，请先开始直播！')
+        this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.localStream) {
@@ -257,7 +257,7 @@ export default {
     // 打开视频
     openCamera () {
       if ((!this.client) && (!this.shareClient)) {
-        alert('还没有开始直播，请先开始直播！')
+        this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.localStream) {
@@ -398,7 +398,7 @@ export default {
 
       // a soft reminder to guide developer to configure sdkAppId/secretKey
       if (SDKAPPID === '' || SECRETKEY === '') {
-        alert(
+        this.$message.error(
           '请先配置好您的账号信息： SDKAPPID 及 SECRETKEY ' +
           '\r\n\r\nPlease configure your SDKAPPID/SECRETKEY in js/debug/GenerateTestUserSig.js'
         )
@@ -441,6 +441,8 @@ export default {
     position: relative;
     display: flex;
     justify-content: space-between;
+    box-sizing: border-box;
+    padding-bottom: 80px;
     .remote-stream {
       width: 100%;
       height: 100%;
