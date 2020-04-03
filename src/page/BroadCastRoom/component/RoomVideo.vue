@@ -166,6 +166,8 @@ export default {
           // 创建好后才能播放 本地流播放 local_stream 是div的id
           localStream.play('local_stream')
           this.playerStatus = true
+          this.micStatus = true
+          this.cameraStatus = true
           // 创建好后才能发布
           this.publishStream(localStream, this.client)
         })
@@ -191,8 +193,10 @@ export default {
         // 创建屏幕分享流
         this.screeStream = TRTC.createStream({ audio: true, screen: true })
         this.screeStream.initialize().then(() => {
-          this.shareStatus = true
           this.screeStream.play('remote_stream')
+          this.shareStatus = true
+          this.micStatus = true
+          this.cameraStatus = true
           this.publishStream(this.screeStream, this.shareClient)
         })
       })
@@ -205,7 +209,7 @@ export default {
 
     // 关闭音频
     closeMic () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         alert('还没有开始直播，请先开始直播！')
         return
       }
@@ -221,7 +225,7 @@ export default {
 
     // 打开音频
     openMic () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         alert('还没有开始直播，请先开始直播！')
         return
       }
@@ -236,7 +240,7 @@ export default {
 
     // 关闭视频
     closeCamera () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         alert('还没有开始直播，请先开始直播！')
         return
       }
@@ -252,7 +256,7 @@ export default {
 
     // 打开视频
     openCamera () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         alert('还没有开始直播，请先开始直播！')
         return
       }
@@ -451,6 +455,7 @@ export default {
       width: 100%;
       height: 100%;
       display: none;
+      margin-left: 10px;
       &.hasScreen{
         width: 200px;
         height: 200px;
