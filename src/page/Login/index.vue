@@ -60,6 +60,17 @@ export default {
         if (res.status === 'Error') {
           this.$message.error('注册号码或登录密码错误！')
         }
+
+        if (res.status === 'Success') {
+          this.$message({
+            message: '登录成功',
+            type: 'success'
+          })
+          const { currAccountId, liveId } = res
+          this.$router.push({
+            path: `/room/${currAccountId}/${liveId}`
+          })
+        }
       }).finally(() => {
         this.loading = false
       })

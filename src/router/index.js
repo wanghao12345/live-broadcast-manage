@@ -10,24 +10,14 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/room/:currAccountId/:liveId',
       name: 'BroadCastRoom',
       component: BroadCastRoom
     },
     {
-      path: '/login',
+      path: '/',
       name: 'Login',
       component: Login
-    },
-    {
-      path: '/demo1',
-      name: 'Demo1',
-      component: Demo1
-    },
-    {
-      path: '/demo2',
-      name: 'Demo2',
-      component: Demo2
     }
   ]
 })

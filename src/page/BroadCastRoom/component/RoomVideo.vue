@@ -60,6 +60,8 @@ import shareOff from '../../../assets/img/big-share-off.png'
 import playerOn from '../../../assets/img/big-player-on.png'
 import playerOff from '../../../assets/img/big-player-off.png'
 
+import { getLiveDetail } from '../../../api/login'
+
 var LibGenerateTestUserSig = require('../../../utils/lib-generate-test-usersig.min.js')
 
 export default {
@@ -105,10 +107,33 @@ export default {
     }
   },
   mounted () {
-    this.getUserSig(1, this.userId)
-    this.getUserSig(2, this.shareId)
+    this.init()
+
+    // this.getUserSig(1, this.userId)
+    // this.getUserSig(2, this.shareId)
   },
   methods: {
+    init () {
+      this.loading = true
+      const { currAccountId, liveId } = this.$route.params
+      const params = {
+        currAccoutId: currAccountId,
+        liveId
+      }
+      getLiveDetail(JSON.stringify(params)).then(res => {
+        console.log(res)
+        const { liveId } = res
+        this.userId = currAccountId
+        this.shareId = 'share_' + currAccountId
+        this.roomId = liveId
+        this.streamId = liveId
+
+        this.getUserSig(1, this.userId)
+        this.getUserSig(2, this.shareId)
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     // 创建链接
     createClient () {
       // 获取签名
