@@ -1,17 +1,16 @@
 <template>
-  <div class="login-wrapper">
+  <div class="login-wrapper" v-loading="loading">
     <h3>【HR易】视频直播间登录</h3>
     <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-      <el-form-item label="注册号码" prop="account">
+      <el-form-item label="注册号码" prop="phone">
         <el-input
           type="account"
-          v-model="ruleForm.account"
+          v-model="ruleForm.phone"
           autocomplete="off"
-          :disabled="true"
         ></el-input>
       </el-form-item>
-      <el-form-item label="登录密码" prop="pass">
-        <el-input type="pass" v-model="ruleForm.pass" autocomplete="off"></el-input>
+      <el-form-item label="登录密码" prop="password">
+        <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
@@ -22,33 +21,44 @@
 </template>
 
 <script>
+import { postLogin } from '../../api/login'
 export default {
   name: 'Login',
   data () {
     return {
       ruleForm: {
-        account: '1732****2312',
-        pass: ''
+        phone: '',
+        password: ''
       },
       rules: {
-        account: [
+        phone: [
           { required: true, message: '请输入注册号码', trigger: 'blur' }
         ],
-        pass: [
+        password: [
           { required: true, message: '请输入登录密码', trigger: 'blur' }
         ]
-      }
+      },
+      loading: null
     }
   },
   methods: {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          this.postLogin()
         } else {
           console.log('error submit!!')
           return false
         }
+      })
+    },
+    // 获取正式用户签名
+    postLogin () {
+      this.loading = true
+      postLogin(this.ruleForm).then(res => {
+        console.log(res)
+      }).finally(() => {
+        this.loading = false
       })
     }
   }

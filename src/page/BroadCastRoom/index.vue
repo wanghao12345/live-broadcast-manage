@@ -7,11 +7,10 @@
     <div class="room-bottom-wrapper">
       <div class="room-video-wrapper">
         <RoomVideo
-          v-if="type"
           @handleUpdateCurrentPersonNum="handleUpdateCurrentPersonNum"
         />
         <RoomCommon
-          v-if="!type"
+          v-if="false"
         />
       </div>
       <div class="room-comment-wrapper">
