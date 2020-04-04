@@ -125,7 +125,7 @@ export default {
         const { liveId } = res
         this.userId = currAccountId
         this.shareId = 'share_' + currAccountId
-        this.roomId = liveId
+        // this.roomId = liveId // 只能是数字
         this.streamId = liveId
 
         this.getUserSig(1, this.userId)
