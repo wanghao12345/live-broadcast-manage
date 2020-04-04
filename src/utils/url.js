@@ -2,13 +2,13 @@
  * 去除空参数
  * @param {pnject} obj 参数
  */
-export function filterEmptyData(obj) {
+export function filterEmptyData (obj) {
   for (let prop in obj) {
     if (obj[prop] === '' || obj[prop] === null || obj[prop] === undefined) {
-      delete obj[prop];
+      delete obj[prop]
     } else {
-      encodeURI(obj[prop]);
+      encodeURI(obj[prop])
     }
   }
-  return obj;
+  return obj
 }
