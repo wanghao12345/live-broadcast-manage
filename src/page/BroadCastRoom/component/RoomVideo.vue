@@ -122,10 +122,10 @@ export default {
       }
       getLiveDetail(JSON.stringify(params)).then(res => {
         console.log(res)
-        const { liveId } = res
+        const { liveId, clRoomId } = res
         this.userId = currAccountId
         this.shareId = 'share_' + currAccountId
-        // this.roomId = liveId // 只能是数字
+        this.roomId = clRoomId // 只能是数字
         this.streamId = liveId
 
         this.getUserSig(1, this.userId)
@@ -207,7 +207,7 @@ export default {
         sdkAppId,
         userId: this.shareId,
         userSig,
-        streamId: this.streamId,
+        streamId: 'share_' + this.streamId,
         pureAudioPushMode: 1
       })
 
@@ -216,7 +216,7 @@ export default {
       this.shareClient.join({roomId: this.roomId}).then(() => {
         console.log('shareClient join success')
         // 创建屏幕分享流
-        this.screeStream = TRTC.createStream({ audio: false, screen: true })
+        this.screeStream = TRTC.createStream({ audio: true, screen: true })
         this.screeStream.initialize().then(() => {
           this.screeStream.play('remote_stream')
           this.shareStatus = true
