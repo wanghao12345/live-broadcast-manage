@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "element-ui": "^2.13.0",
+    "js-md5": "^0.7.3",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "trtc-js-sdk": "^4.3.10",

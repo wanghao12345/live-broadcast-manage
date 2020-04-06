@@ -44,6 +44,7 @@
 <script>
 // 导入sdk
 import axios from 'axios'
+import md5 from 'js-md5'
 import TRTC from 'trtc-js-sdk'
 
 import personIcon from '../../../assets/img/person.png'
@@ -97,10 +98,12 @@ export default {
       currentBroadCastStats: false,
       userSigConfig: {
         sdkAppId: '',
+        mixedFlowSig: '',
         userSig: ''
       },
       shareSigConfig: {
         sdkAppId: '',
+        mixedFlowSig: '',
         userSig: ''
       },
       loading: false
@@ -222,7 +225,7 @@ export default {
           this.shareStatus = true
           this.micStatus = true
           this.cameraStatus = true
-          this.publishStream(this.screeStream, this.shareClient)
+          this.publishStream(this.screeStream, this.shareClient, 2)
         })
       })
     },
@@ -295,7 +298,7 @@ export default {
     },
 
     // 发布本地音视频流
-    publishStream (localStream, client) {
+    publishStream (localStream, client, type = 1) {
       client
         .publish(localStream)
         .catch(error => {
@@ -303,6 +306,16 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
+          // if (type === 2) {
+          //   setTimeout(() => {
+          //     this.postCloudMix()
+          //   }, 8000)
+          // }
+          if (this.client && this.shareClient) {
+            setTimeout(() => {
+              this.postCloudMix()
+            }, 8000)
+          }
         })
     },
 
@@ -452,6 +465,55 @@ export default {
         console.log(error)
       }).finally(() => {
         this.loading = false
+      })
+    },
+
+    // 混流接口
+    postCloudMix () {
+      // const { sdkAppId, mixedFlowSig } = this.userSigConfig
+      const sdkAppId = 1301536093
+      const key = 'ae69f7315cf302dad732677fa2dc932e'
+      const t = new Date().getTime() + 60
+      const mixedFlowSig = md5(key + t)
+      const data = {
+        timestamp: t,
+        eventId: Math.random() * 100 + 1,
+        interface: {
+          interfaceName: 'Mix_StreamV2',
+          para: {
+            app_id: sdkAppId,
+            interface: 'mix_streamv2.start_mix_stream_advanced',
+            // mix_stream_template_id: 40,
+            mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
+            output_stream_type: 0,
+            output_stream_id: this.streamId,
+            // output_stream_id: this.screeStream.getId(),
+            input_stream_list: [
+              {
+                input_stream_id: 'share_' + this.streamId,
+                // input_stream_id: this.screeStream.getId(),
+                layout_params: {
+                  image_layer: 1
+                }
+              },
+              {
+                input_stream_id: this.streamId,
+                layout_params: {
+                  image_layer: 2
+                },
+                crop_params: {
+                  crop_width: 200,
+                  crop_height: 100,
+                  crop_x: 100,
+                  crop_y: 1
+                }
+              }
+            ]
+          }
+        }
+      }
+      axios.post('http://fcgi.video.qcloud.com/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
+        console.log(res)
       })
     }
 
