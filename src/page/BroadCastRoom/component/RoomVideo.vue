@@ -483,10 +483,10 @@ export default {
           para: {
             app_id: sdkAppId,
             interface: 'mix_streamv2.start_mix_stream_advanced',
-            // mix_stream_template_id: 40,
+            mix_stream_template_id: 40,
             mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
-            output_stream_type: 0,
-            output_stream_id: this.streamId,
+            output_stream_type: 1,
+            output_stream_id: this.streamId + 'out',
             // output_stream_id: this.screeStream.getId(),
             input_stream_list: [
               {
