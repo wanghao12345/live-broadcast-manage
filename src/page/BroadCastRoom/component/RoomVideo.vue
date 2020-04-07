@@ -306,11 +306,6 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
-          // if (type === 2) {
-          //   setTimeout(() => {
-          //     this.postCloudMix()
-          //   }, 8000)
-          // }
           if (this.client && this.shareClient) {
             setTimeout(() => {
               this.postCloudMix()
@@ -470,8 +465,11 @@ export default {
 
     // 混流接口
     postCloudMix () {
-      // const { sdkAppId, mixedFlowSig } = this.userSigConfig
-      const sdkAppId = 1301536093
+      const { appId } = this.userSigConfig
+
+      const sdkAppId = appId * 1
+
+      // const sdkAppId = 1301536093
       const key = 'ae69f7315cf302dad732677fa2dc932e'
       const t = new Date().getTime() + 60
       const mixedFlowSig = md5(key + t)
