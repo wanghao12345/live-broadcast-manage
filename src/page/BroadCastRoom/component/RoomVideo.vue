@@ -145,10 +145,6 @@ export default {
       const sdkAppId = this.userSigConfig.sdkAppId
       const userSig = this.userSigConfig.userSig
 
-      // const config = this.genTestUserSig(userId)
-      // const sdkAppId = config.sdkAppId
-      // const userSig = config.userSig
-
       this.client = TRTC.createClient({
         mode: 'videoCall',
         sdkAppId,
@@ -241,11 +237,11 @@ export default {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
-      if (this.playerStatus && this.localStream) {
+      if (this.playerStatus && this.client) {
         this.localStream.muteAudio()
       }
 
-      if (this.shareStatus && this.screeStream) {
+      if (this.shareStatus && this.shareClient) {
         this.screeStream.muteAudio()
       }
       this.micStatus = false
@@ -257,10 +253,10 @@ export default {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
-      if (this.playerStatus && this.localStream) {
+      if (this.playerStatus && this.client) {
         this.localStream.unmuteAudio()
       }
-      if (this.shareStatus && this.screeStream) {
+      if (this.shareStatus && this.shareClient) {
         this.screeStream.unmuteAudio()
       }
       this.micStatus = true
@@ -272,11 +268,11 @@ export default {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
-      if (this.playerStatus && this.localStream) {
+      if (this.playerStatus && this.client) {
         this.localStream.muteVideo()
       }
 
-      if (this.shareStatus && this.screeStream) {
+      if (this.shareStatus && this.shareClient) {
         this.screeStream.muteVideo()
       }
       this.cameraStatus = false
@@ -288,10 +284,10 @@ export default {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
-      if (this.playerStatus && this.localStream) {
+      if (this.playerStatus && this.client) {
         this.localStream.unmuteVideo()
       }
-      if (this.shareStatus && this.screeStream) {
+      if (this.shareStatus && this.shareClient) {
         this.screeStream.unmuteVideo()
       }
       this.cameraStatus = true
@@ -306,11 +302,12 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
-          if (this.client && this.shareClient) {
-            setTimeout(() => {
-              this.postCloudMix()
-            }, 8000)
-          }
+          // if (this.client && this.shareClient) {
+          //   setTimeout(() => {
+          //     this.postCloudMix()
+          //   }, 8000)
+          // }
+          this.postCloudMix()
         })
     },
 
@@ -483,13 +480,11 @@ export default {
             interface: 'mix_streamv2.start_mix_stream_advanced',
             mix_stream_template_id: 40,
             mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
-            output_stream_type: 1,
-            output_stream_id: this.streamId + 'out',
-            // output_stream_id: this.screeStream.getId(),
+            output_stream_type: 0,
+            output_stream_id: this.streamId,
             input_stream_list: [
               {
                 input_stream_id: 'share_' + this.streamId,
-                // input_stream_id: this.screeStream.getId(),
                 layout_params: {
                   image_layer: 1
                 }
@@ -498,13 +493,13 @@ export default {
                 input_stream_id: this.streamId,
                 layout_params: {
                   image_layer: 2
-                },
-                crop_params: {
-                  crop_width: 200,
-                  crop_height: 100,
-                  crop_x: 100,
-                  crop_y: 1
                 }
+                // crop_params: {
+                //   crop_width: 200,
+                //   crop_height: 100,
+                //   crop_x: 100,
+                //   crop_y: 1
+                // }
               }
             ]
           }
