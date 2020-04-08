@@ -106,7 +106,8 @@ export default {
         mixedFlowSig: '',
         userSig: ''
       },
-      loading: false
+      loading: false,
+      mixEventId: ''
     }
   },
   mounted () {
@@ -114,6 +115,9 @@ export default {
 
     // this.getUserSig(1, this.userId)
     // this.getUserSig(2, this.shareId)
+  },
+  destroyed () {
+    this.cancelCloudMix()
   },
   methods: {
     init () {
@@ -214,20 +218,30 @@ export default {
         streamId: 'share_' + this.streamId,
         pureAudioPushMode: 1
       })
+      this.joinShareRoom()
+    },
 
+    // 分享加入
+    joinShareRoom () {
       // 指明该 shareClient 默认不接收任何远端流 （它只负责发送屏幕分享流）
       this.shareClient.setDefaultMuteRemoteStreams(true)
       this.shareClient.join({roomId: this.roomId}).then(() => {
         console.log('shareClient join success')
         // 创建屏幕分享流
-        this.screeStream = TRTC.createStream({ audio: true, screen: true })
-        this.screeStream.initialize().then(() => {
-          this.screeStream.play('remote_stream')
-          this.shareStatus = true
-          this.micStatus = true
-          this.cameraStatus = true
-          this.publishStream(this.screeStream, this.shareClient, 2)
-        })
+        this.createShareStream()
+      })
+    },
+
+    // 创建分享流
+    createShareStream () {
+      this.screeStream = TRTC.createStream({ audio: true, screen: true })
+      this.screeStream.setScreenProfile('720p')
+      this.screeStream.initialize().then(() => {
+        this.screeStream.play('remote_stream')
+        this.shareStatus = true
+        this.micStatus = true
+        this.cameraStatus = true
+        this.publishStream(this.screeStream, this.shareClient, 2)
       })
     },
 
@@ -374,7 +388,7 @@ export default {
             this.localStream = null
           }
           this.client = null
-          // 退房成功，可再次调用client.join重新进房开启新的通话。
+          this.cancelCloudMix()
         })
         .catch(error => {
           console.error('退房失败 ' + error)
@@ -385,7 +399,7 @@ export default {
     // 退出分享
     leaveShare () {
       this.shareStatus = false
-      this.client
+      this.shareClient
         .leave()
         .then(() => {
           console.log('退房成功')
@@ -395,7 +409,9 @@ export default {
             this.screeStream = null
           }
           this.shareClient = null
-          // 退房成功，可再次调用client.join重新进房开启新的通话。
+          if (this.client) {
+            this.cancelCloudMix()
+          }
         })
         .catch(error => {
           console.error('退房失败 ' + error)
@@ -475,15 +491,18 @@ export default {
       const key = 'ae69f7315cf302dad732677fa2dc932e'
       const t = new Date().getTime() + 60
       const mixedFlowSig = md5(key + t)
+
+      this.mixEventId = Math.random() * 100 + 1
+
       const data = {
         timestamp: t,
-        eventId: Math.random() * 100 + 1,
+        eventId: this.mixEventId,
         interface: {
           interfaceName: 'Mix_StreamV2',
           para: {
             app_id: sdkAppId,
             interface: 'mix_streamv2.start_mix_stream_advanced',
-            // mix_stream_template_id: 40,
+            mix_stream_template_id: 20,
             mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
             output_stream_type: 0,
             output_stream_id: this.streamId,
@@ -492,7 +511,7 @@ export default {
                 input_stream_id: 'share_' + this.streamId,
                 layout_params: {
                   image_layer: 1,
-                  image_width: 0.99,
+                  image_width: 0.70,
                   image_height: 0.99
                 }
               },
@@ -501,14 +520,9 @@ export default {
                 layout_params: {
                   image_layer: 2,
                   image_width: 200,
-                  image_height: 200
+                  image_height: 200,
+                  location_x: 0.7
                 }
-                // crop_params: {
-                //   crop_width: 200,
-                //   crop_height: 100,
-                //   crop_x: 100,
-                //   crop_y: 1
-                // }
               }
             ]
           }
@@ -522,7 +536,8 @@ export default {
       postMix({
         content: JSON.stringify(data),
         sign: mixedFlowSig,
-        t: t + ''
+        t: t + '',
+        appid: sdkAppId + ''
       }).then(res => {
         console.log(res)
       })
@@ -530,8 +545,42 @@ export default {
       // axios.post('/api/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
       //   console.log(res)
       // })
-    }
+    },
 
+    // 取消混流
+    cancelCloudMix () {
+      if (!this.mixEventId) {
+        return
+      }
+      console.log('取消混流')
+      const { appId } = this.userSigConfig
+      const sdkAppId = appId * 1
+      const key = 'ae69f7315cf302dad732677fa2dc932e'
+      const t = new Date().getTime() + 60
+      const mixedFlowSig = md5(key + t)
+      const data = {
+        timestamp: t,
+        eventId: Math.random() * 100 + 1,
+        interface: {
+          interfaceName: 'Mix_StreamV2',
+          para: {
+            app_id: sdkAppId,
+            interface: 'mix_streamv2.cancel_mix_stream',
+            mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
+            output_stream_type: 0,
+            output_stream_id: this.streamId
+          }
+        }
+      }
+      postMix({
+        content: JSON.stringify(data),
+        sign: mixedFlowSig,
+        t: t + '',
+        appid: sdkAppId + ''
+      }).then(res => {
+        console.log(res)
+      })
+    }
   }
 }
 </script>
