@@ -427,9 +427,7 @@ export default {
             this.screeStream = null
           }
           this.shareClient = null
-          if (this.client) {
-            this.postCloudMix()
-          }
+          this.cancelCloudMix()
         })
         .catch(error => {
           console.error('退房失败 ' + error)
