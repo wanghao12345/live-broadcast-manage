@@ -419,7 +419,7 @@ export default {
           }
           this.shareClient = null
           if (this.client) {
-            this.cancelCloudMix()
+            this.postCloudMix()
           }
         })
         .catch(error => {
@@ -512,7 +512,7 @@ export default {
             app_id: sdkAppId,
             interface: 'mix_streamv2.start_mix_stream_advanced',
             mix_stream_template_id: 20,
-            mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
+            mix_stream_session_id: 'lewis_room' + (Math.random() * 100 + 1),
             output_stream_type: 0,
             output_stream_id: this.streamId,
             input_stream_list: [
@@ -569,14 +569,13 @@ export default {
       const mixedFlowSig = md5(key + t)
       const data = {
         timestamp: t,
-        eventId: Math.random() * 100 + 1,
+        eventId: this.mixEventId,
         interface: {
           interfaceName: 'Mix_StreamV2',
           para: {
             app_id: sdkAppId,
             interface: 'mix_streamv2.cancel_mix_stream',
-            mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
-            output_stream_type: 0,
+            mix_stream_session_id: 'lewis_room',
             output_stream_id: this.streamId
           }
         }
