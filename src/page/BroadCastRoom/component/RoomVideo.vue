@@ -302,12 +302,12 @@ export default {
         })
         .then(() => {
           console.log('本地流发布成功')
-          // if (this.client && this.shareClient) {
-          //   setTimeout(() => {
-          //     this.postCloudMix()
-          //   }, 8000)
-          // }
-          this.postCloudMix()
+          if (this.client && this.shareClient) {
+            setTimeout(() => {
+              this.postCloudMix()
+            }, 5000)
+          }
+          // this.postCloudMix()
         })
     },
 
@@ -478,7 +478,7 @@ export default {
           para: {
             app_id: sdkAppId,
             interface: 'mix_streamv2.start_mix_stream_advanced',
-            mix_stream_template_id: 40,
+            // mix_stream_template_id: 40,
             mix_stream_session_id: 'mix_stream_session_id_' + (Math.random() * 100),
             output_stream_type: 0,
             output_stream_id: this.streamId,
@@ -486,13 +486,17 @@ export default {
               {
                 input_stream_id: 'share_' + this.streamId,
                 layout_params: {
-                  image_layer: 1
+                  image_layer: 1,
+                  image_width: 0.99,
+                  image_height: 0.99
                 }
               },
               {
                 input_stream_id: this.streamId,
                 layout_params: {
-                  image_layer: 2
+                  image_layer: 2,
+                  image_width: 0.99,
+                  image_height: 0.99
                 }
                 // crop_params: {
                 //   crop_width: 200,
@@ -505,7 +509,12 @@ export default {
           }
         }
       }
-      axios.post('http://fcgi.video.qcloud.com/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
+
+      // axios.post('http://fcgi.video.qcloud.com/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
+      //   console.log(res)
+      // })
+
+      axios.post('/api/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
         console.log(res)
       })
     }

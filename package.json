@@ -18,6 +18,7 @@
     "less-loader": "^5.0.0",
     "trtc-js-sdk": "^4.3.10",
     "vue": "^2.5.2",
+    "vue-jsonp": "^0.1.8",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

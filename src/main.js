@@ -4,12 +4,14 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
+import VueJsonp from 'vue-jsonp'
 import 'element-ui/lib/theme-chalk/index.css'
 
 import './assets/reset.css'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(VueJsonp)
 
 /* eslint-disable no-new */
 new Vue({

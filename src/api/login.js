@@ -1,9 +1,10 @@
 import axios from '../config/axios'
+import axiosLogin from '../config/axiosLogin'
 
 /**
  * 登录
  */
-export const postLogin = (params) => axios({
+export const postLogin = (params) => axiosLogin({
   method: 'post',
   url: `/v1/appx/live/livePcLogin.do`,
   data: params
