@@ -495,8 +495,9 @@ export default {
                 input_stream_id: this.streamId,
                 layout_params: {
                   image_layer: 2,
-                  image_width: 0.99,
-                  image_height: 0.99
+                  image_width: 200,
+                  image_height: 200,
+                  location_x: 0.99
                 }
                 // crop_params: {
                 //   crop_width: 200,
