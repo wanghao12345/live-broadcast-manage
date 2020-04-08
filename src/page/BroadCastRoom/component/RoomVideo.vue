@@ -143,6 +143,10 @@ export default {
     },
     // 创建链接
     createClient () {
+      if (this.client) {
+        this.$message.error('已有直播了，请不要重复点击直播！')
+        return
+      }
       // 获取签名
       const userId = this.userId
 
@@ -205,6 +209,11 @@ export default {
     createScreenShare () {
       if (!this.client) {
         this.$message.error('还没有开始直播，请先开始直播！')
+        return
+      }
+
+      if (this.shareClient) {
+        this.$message.error('已经有分享了，请不要重复点击分享！')
         return
       }
 
