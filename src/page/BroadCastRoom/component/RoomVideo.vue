@@ -61,7 +61,7 @@ import shareOff from '../../../assets/img/big-share-off.png'
 import playerOn from '../../../assets/img/big-player-on.png'
 import playerOff from '../../../assets/img/big-player-off.png'
 
-import { getLiveDetail } from '../../../api/login'
+import { getLiveDetail, postMix } from '../../../api/login'
 
 var LibGenerateTestUserSig = require('../../../utils/lib-generate-test-usersig.min.js')
 
@@ -199,6 +199,11 @@ export default {
 
     // 发布屏幕分享
     createScreenShare () {
+      if (!this.client) {
+        this.$message.error('还没有开始直播，请先开始直播！')
+        return
+      }
+
       // 使用一个独立的用户ID进行推送屏幕分享
       const { sdkAppId, userSig } = this.shareSigConfig
       this.shareClient = TRTC.createClient({
@@ -496,8 +501,7 @@ export default {
                 layout_params: {
                   image_layer: 2,
                   image_width: 200,
-                  image_height: 200,
-                  location_x: 0.99
+                  image_height: 200
                 }
                 // crop_params: {
                 //   crop_width: 200,
@@ -515,9 +519,17 @@ export default {
       //   console.log(res)
       // })
 
-      axios.post('/api/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
+      postMix({
+        content: JSON.stringify(data),
+        sign: mixedFlowSig,
+        t: t + ''
+      }).then(res => {
         console.log(res)
       })
+
+      // axios.post('/api/common_access?appid=' + sdkAppId + '&interface=Mix_StreamV2&t=' + t + '&sign=' + mixedFlowSig, data).then((res) => {
+      //   console.log(res)
+      // })
     }
 
   }

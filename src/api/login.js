@@ -17,3 +17,9 @@ export const getLiveDetail = (params) => axios({
   url: `/v1/appx/live/getLiveDetail.do`,
   data: params
 })
+
+export const postMix = (params) => axios({
+  method: 'post',
+  url: '/v1/appx/live/liveMixedFlow.do',
+  data: params
+})
