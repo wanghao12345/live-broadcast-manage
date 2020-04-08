@@ -511,8 +511,6 @@ export default {
       const mixedFlowSig = md5(key + t)
 
       this.mixEventId = Math.random() * 100 + 1
-      const localStreamId = this.localStream.getId()
-      const screenStreamId = this.screeStream.getId()
 
       const data = {
         timestamp: t,
