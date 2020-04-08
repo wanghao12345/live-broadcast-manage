@@ -153,12 +153,17 @@ export default {
       const sdkAppId = this.userSigConfig.sdkAppId
       const userSig = this.userSigConfig.userSig
 
+      let streamId = this.streamId
+      if (this.shareClient) {
+        streamId = 'share_' + streamId
+      }
+
       this.client = TRTC.createClient({
         mode: 'videoCall',
         sdkAppId,
         userId,
         userSig,
-        streamId: this.streamId,
+        streamId: streamId,
         pureAudioPushMode: 1
       })
       // 注册远程监听，要放在加入房间前--这里用了发布订阅模式
@@ -201,16 +206,16 @@ export default {
           this.micStatus = true
           this.cameraStatus = true
           // 创建好后才能发布
-          this.publishStream(localStream, this.client)
+          this.publishStream(localStream, this.client, 1)
         })
     },
 
     // 发布屏幕分享
     createScreenShare () {
-      if (!this.client) {
-        this.$message.error('还没有开始直播，请先开始直播！')
-        return
-      }
+      // if (!this.client) {
+      //   this.$message.error('还没有开始直播，请先开始直播！')
+      //   return
+      // }
 
       if (this.shareClient) {
         this.$message.error('已经有分享了，请不要重复点击分享！')
@@ -219,12 +224,16 @@ export default {
 
       // 使用一个独立的用户ID进行推送屏幕分享
       const { sdkAppId, userSig } = this.shareSigConfig
+      let streamId = this.streamId
+      if (this.client) {
+        streamId = 'share_' + streamId
+      }
       this.shareClient = TRTC.createClient({
         mode: 'videoCall',
         sdkAppId,
         userId: this.shareId,
         userSig,
-        streamId: 'share_' + this.streamId,
+        streamId: streamId,
         pureAudioPushMode: 1
       })
       this.joinShareRoom()
@@ -332,7 +341,7 @@ export default {
           console.log('本地流发布成功')
           if (this.client && this.shareClient) {
             setTimeout(() => {
-              this.postCloudMix()
+              this.postCloudMix(type)
             }, 5000)
           }
           // this.postCloudMix()
@@ -491,7 +500,7 @@ export default {
     },
 
     // 混流接口
-    postCloudMix () {
+    postCloudMix (type) {
       const { appId } = this.userSigConfig
 
       const sdkAppId = appId * 1
@@ -502,6 +511,8 @@ export default {
       const mixedFlowSig = md5(key + t)
 
       this.mixEventId = Math.random() * 100 + 1
+      const localStreamId = this.localStream.getId()
+      const screenStreamId = this.screeStream.getId()
 
       const data = {
         timestamp: t,
@@ -517,7 +528,7 @@ export default {
             output_stream_id: this.streamId,
             input_stream_list: [
               {
-                input_stream_id: 'share_' + this.streamId,
+                input_stream_id: type === 1 ? this.streamId : 'share_' + this.streamId,
                 layout_params: {
                   image_layer: 1,
                   image_width: 0.70,
@@ -525,12 +536,11 @@ export default {
                 }
               },
               {
-                input_stream_id: this.streamId,
+                input_stream_id: type === 2 ? this.streamId : 'share_' + this.streamId,
                 layout_params: {
                   image_layer: 2,
                   image_width: 200,
-                  image_height: 200,
-                  location_x: 0.7
+                  image_height: 200
                 }
               }
             ]
