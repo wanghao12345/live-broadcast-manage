@@ -212,10 +212,6 @@ export default {
 
     // 发布屏幕分享
     createScreenShare () {
-      // if (!this.client) {
-      //   this.$message.error('还没有开始直播，请先开始直播！')
-      //   return
-      // }
 
       if (this.shareClient) {
         this.$message.error('已经有分享了，请不要重复点击分享！')
@@ -253,6 +249,11 @@ export default {
     // 创建分享流
     createShareStream () {
       this.screeStream = TRTC.createStream({ audio: true, screen: true })
+      // 监听屏幕分享停止事件
+      this.screeStream.on('screen-sharing-stopped', event => {
+        console.log('screen sharing was stopped')
+        this.leaveShare()
+      })
       this.screeStream.setScreenProfile('720p')
       this.screeStream.initialize().then(() => {
         this.screeStream.play('remote_stream')
