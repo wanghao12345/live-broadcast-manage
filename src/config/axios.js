@@ -3,7 +3,7 @@ import { filterEmptyData } from '../utils/url'
 
 const serviceConfig = {
   baseURL: 'https://api1.leading-c.cn/mol',
-  timeout: 5000,
+  timeout: 50000,
   responseType: 'json',
   withCredentials: true,
   headers: {

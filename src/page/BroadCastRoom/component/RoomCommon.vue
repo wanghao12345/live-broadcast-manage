@@ -22,10 +22,21 @@ export default {
     }
   },
   mounted () {
+    const type = this.$route.query.type
+    console.log(type)
+    let source = 'http://api2.leading-c.cn/live/A26389DDCCECE338E05011AC02006E9C.flv'
+    if (type === '1') {
+      source = 'http://api2.leading-c.cn/live/share_A26389DDCCECE338E05011AC02006E9C.flv'
+    }
+
+    if (type === '2') {
+      source = 'http://api2.leading-c.cn/live/client_A26389DDCCECE338E05011AC02006E9C.flv'
+    }
+
     new Aliplayer({
       id: 'J_prismPlayer', // 容器id
-      // source: 'http://api2.leading-c.cn/live/1400330338_123_user_123_main.flv',
-      source: 'http://api2.leading-c.cn/live/A26389DDCCECE338E05011AC02006E9C.flv',
+      // source: 'http://api2.leading-c.cn/live/A26389DDCCECE338E05011AC02006E9C.flv',
+      source: source,
       cover: 'http://cdn.img.mtedu.com/images/assignment/day_3.jpg',
       width: '100%',
       height: '100%',

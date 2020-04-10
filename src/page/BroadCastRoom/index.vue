@@ -14,9 +14,9 @@
           v-if="type"
         />
       </div>
-      <div class="room-comment-wrapper">
-        <RoomComment />
-      </div>
+      <!-- <div class="room-comment-wrapper"> -->
+        <RoomComment @handleUpdateCurrentPersonNum="handleUpdateCurrentPersonNum" />
+      <!-- </div> -->
     </div>
     <div class="root-footer-wrapper">
       技术支持：知服宝
@@ -86,14 +86,16 @@ export default {
       padding: 20px;
       display: flex;
       justify-content: space-between;
+      // position: relative;
       .room-video-wrapper{
         flex: 1;
         height: 100%;
         background-color: white;
       }
       .room-comment-wrapper{
+        // position: absolute;
         width: 300px;
-        height: 100%;
+        max-height: 400px;
         background-color: white;
         margin-left: 20px;
       }

@@ -16,7 +16,7 @@
           <span>{{micStatus ? '关闭音频' : '开启音频'}}</span>
         </div>
         <div class="btn-item">
-          <img v-if="cameraStatus" :src="btnIcon.cameraOn" @click="closeCamera" alt="">
+          <img v-if="cameraStatus" :src="btnIcon.cameraOn" @click="leaveRoom" alt="">
           <img v-else :src="btnIcon.cameraOff" @click="openCamera" alt="">
           <span>{{cameraStatus ? '关闭视频' : '开启视频'}}</span>
         </div>
@@ -114,6 +114,9 @@ export default {
   },
   mounted () {
     this.init()
+
+    // this.getUserSig(1, this.userId)
+    // this.getUserSig(2, this.shareId)
   },
   destroyed () {
     this.cancelCloudMix()
@@ -152,6 +155,11 @@ export default {
 
       const sdkAppId = this.userSigConfig.sdkAppId
       const userSig = this.userSigConfig.userSig
+
+      // let streamId = this.streamId
+      // if (this.shareClient) {
+      //   streamId = 'share_' + streamId
+      // }
 
       let streamId = 'client_' + this.streamId
 
@@ -304,24 +312,31 @@ export default {
 
     // 关闭视频
     closeCamera () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.client) {
         this.localStream.muteVideo()
       }
+
+      if (this.shareStatus && this.shareClient) {
+        this.screeStream.muteVideo()
+      }
       this.cameraStatus = false
     },
 
     // 打开视频
     openCamera () {
-      if (!this.client) {
+      if ((!this.client) && (!this.shareClient)) {
         this.$message.error('还没有开始直播，请先开始直播！')
         return
       }
       if (this.playerStatus && this.client) {
         this.localStream.unmuteVideo()
+      }
+      if (this.shareStatus && this.shareClient) {
+        this.screeStream.unmuteVideo()
       }
       this.cameraStatus = true
     },
@@ -590,7 +605,7 @@ export default {
             app_id: sdkAppId,
             interface: 'mix_streamv2.start_mix_stream_advanced',
             mix_stream_template_id: 0,
-            mix_stream_session_id: 'lewis_room_' + this.streamId + (Math.random() * 100 + 2),
+            mix_stream_session_id: 'lewis_room',
             output_stream_type: 1,
             output_stream_id: this.streamId,
             input_stream_list: [

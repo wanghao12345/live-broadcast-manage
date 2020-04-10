@@ -8,7 +8,7 @@ import VueJsonp from 'vue-jsonp'
 import 'element-ui/lib/theme-chalk/index.css'
 
 import './assets/reset.css'
-
+import $ from 'jquery'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueJsonp)
